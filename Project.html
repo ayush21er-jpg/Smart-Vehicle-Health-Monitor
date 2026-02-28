@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Smart Vehicle Health Monitor</title>
+
+<style>
+body{
+font-family:Arial;
+background:linear-gradient(to right,#0f2027,#203a43,#2c5364);
+color:white;
+text-align:center;
+padding:30px;
+}
+
+.container{
+width:760px;
+margin:auto;
+background:white;
+color:black;
+padding:25px;
+border-radius:12px;
+}
+
+.logo{width:90px;}
+
+table{
+width:100%;
+border-collapse:collapse;
+margin-top:10px;
+}
+
+th,td{
+border:1px solid #ccc;
+padding:8px;
+text-align:center;
+}
+
+th{background:#203a43;color:white;}
+
+.section{
+margin-top:15px;
+padding:10px;
+background:#f2f2f2;
+border-radius:8px;
+}
+
+.good{color:green;font-weight:bold;}
+.warn{color:orange;font-weight:bold;}
+.bad{color:red;font-weight:bold;}
+
+select{
+width:95%;
+padding:12px;
+margin-top:10px;
+font-size:16px;
+}
+
+.btnRow{
+display:flex;
+gap:10px;
+justify-content:center;
+}
+
+button{
+flex:1;
+padding:12px;
+margin-top:10px;
+font-size:16px;
+border:none;
+border-radius:6px;
+cursor:pointer;
+}
+
+.addBtn{background:#28a745;color:white;}
+.scanBtn{background:#ffc107;color:black;}
+.exportBtn{background:#17a2b8;color:white;}
+
+.result{
+margin-top:15px;
+padding:15px;
+background:#fff4cc;
+display:none;
+text-align:left;
+border-radius:8px;
+}
+
+.badge{
+padding:4px 10px;
+border-radius:12px;
+color:white;
+font-weight:bold;
+}
+
+.low{background:green;}
+.medium{background:orange;}
+.high{background:red;}
+</style>
+</head>
+
+<body>
+
+<img class="logo" src="logo.png">
+
+<h1>Smart Vehicle Health Monitor</h1>
+<p>Predictive Maintenance Dashboard</p>
+
+<div class="container">
+
+<select id="section">
+<option value="">Select Vehicle Area</option>
+<option>Engine</option>
+<option>Battery</option>
+<option>Brakes</option>
+<option>Tyres</option>
+</select>
+
+<div class="btnRow">
+<button class="addBtn" onclick="addArea()">Add Area Report</button>
+<button class="scanBtn" onclick="completeScan()">Complete Vehicle Scan</button>
+<button class="exportBtn" onclick="exportReport()">Export Report</button>
+</div>
+
+<div id="reports"></div>
+<div id="summary" class="result"></div>
+
+</div>
+
+<script>
+
+let addedSections = new Set();
+
+function random(min,max){
+return Math.floor(Math.random()*(max-min+1))+min;
+}
+
+function status(v,min,max){
+if(v<min) return "<span class='warn'>LOW</span>";
+if(v>max) return "<span class='bad'>HIGH</span>";
+return "<span class='good'>SAFE</span>";
+}
+
+function prediction(){
+return random(10,60)+" days";
+}
+
+function insight(){
+let msgs=[
+"Pattern indicates gradual wear due to vibration trend.",
+"Temperature fluctuation suggests moderate load stress.",
+"Efficiency trend shows slow degradation.",
+"Sensor pattern indicates imbalance developing."
+];
+return msgs[random(0,msgs.length-1)];
+}
+
+function riskBadge(score){
+if(score>75) return "<span class='badge low'>Low Risk</span>";
+if(score>50) return "<span class='badge medium'>Medium Risk</span>";
+return "<span class='badge high'>High Risk</span>";
+}
+
+function addArea(){
+
+let sec=document.getElementById("section").value;
+let reports=document.getElementById("reports");
+
+if(sec==="" || addedSections.has(sec)) return;
+
+addedSections.add(sec);
+
+let html="<div class='section'><h3>"+sec+" Report</h3>";
+html+="<table><tr><th>Parameter</th><th>Reading</th><th>Safe Range</th><th>Status</th></tr>";
+
+if(sec==="Engine"){
+let t=random(85,105), v=random(1,10);
+html+="<tr><td>Temperature</td><td>"+t+"°C</td><td>80-95°C</td><td>"+status(t,80,95)+"</td></tr>";
+html+="<tr><td>Vibration</td><td>"+v+"/10</td><td>1-6</td><td>"+status(v,1,6)+"</td></tr>";
+}
+
+if(sec==="Battery"){
+let b=random(30,95), c=random(40,100);
+html+="<tr><td>Battery Health</td><td>"+b+"%</td><td>50-100%</td><td>"+status(b,50,100)+"</td></tr>";
+html+="<tr><td>Charging Efficiency</td><td>"+c+"%</td><td>60-100%</td><td>"+status(c,60,100)+"</td></tr>";
+}
+
+if(sec==="Brakes"){
+let w=random(40,90), bt=random(40,100);
+html+="<tr><td>Brake Wear</td><td>"+w+"%</td><td>60-100%</td><td>"+status(w,60,100)+"</td></tr>";
+html+="<tr><td>Brake Temp</td><td>"+bt+"°C</td><td>40-80°C</td><td>"+status(bt,40,80)+"</td></tr>";
+}
+
+if(sec==="Tyres"){
+let t1=random(22,36),t2=random(22,36),t3=random(22,36),t4=random(22,36);
+html+="<tr><td>Front Left PSI</td><td>"+t1+"</td><td>28-34</td><td>"+status(t1,28,34)+"</td></tr>";
+html+="<tr><td>Front Right PSI</td><td>"+t2+"</td><td>28-34</td><td>"+status(t2,28,34)+"</td></tr>";
+html+="<tr><td>Rear Left PSI</td><td>"+t3+"</td><td>28-34</td><td>"+status(t3,28,34)+"</td></tr>";
+html+="<tr><td>Rear Right PSI</td><td>"+t4+"</td><td>28-34</td><td>"+status(t4,28,34)+"</td></tr>";
+}
+
+let score=random(55,95);
+
+html+="</table>";
+html+="<p><b>AI Predicted Maintenance:</b> "+prediction()+"</p>";
+html+="<p><b>AI Insight:</b> "+insight()+"</p>";
+html+="<p><b>Health Score:</b> "+score+"/100 "+riskBadge(score)+"</p>";
+html+="</div>";
+
+reports.innerHTML += html;
+}
+
+function completeScan(){
+
+let summary=document.getElementById("summary");
+summary.style.display="block";
+
+let now=new Date();
+let time=now.toLocaleString();
+
+let score=random(60,95);
+
+summary.innerHTML=
+"<b>Complete Vehicle Diagnostic Summary</b><br><br>"+
+"<b>Vehicle Health Score:</b> "+score+"/100 "+riskBadge(score)+"<br>"+
+"<b>Last Scan:</b> "+time+"<br><br>"+
+"Estimated Safe Runtime: "+random(5,20)+" days<br>"+
+"Recommended Action: Schedule preventive maintenance.";
+}
+
+function exportReport(){
+alert("Report exported successfully (demo).");
+}
+
+</script>
+
+</body>
+</html>
